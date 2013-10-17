@@ -26,12 +26,23 @@ $last_id=0;
 if ($last_id_ar!=NULL)
     $last_id=$last_id_ar['seq'];
 
+$excludedTbl = dbGetTable('excluded_categories');
+$excluded_cats = array();
+while($row = $excludedTbl->fetchArray(SQLITE3_ASSOC) ){
+    array_push($excluded_cats, $row['cat_id']);
+}
+
 echo '<div dir="ltr">', PHP_EOL;
 $insert_sql = "BEGIN;" . PHP_EOL;
 for ($i = 1, $id=$last_id; $i <= $numRows; $i++) {
     $typesWithRow = $cellType;
     foreach ($typesWithRow as &$value)
 	$value = $value . '_' . $i;
+
+    if ( in_array($arr[$typesWithRow[4]], $excluded_cats) ) {
+	echo $arr[$typesWithRow[4]]. "is in excluded" . EOL;
+	continue;
+    }
 
     $date = DateTime::createFromFormat('d/m/y', $arr[$typesWithRow[0]]);
     $insertTrans = sprintf($insertTransFMT, ++$id, $date->format("Y-m-d"), $arr[$typesWithRow[2]], $arr[$typesWithRow[1]], 

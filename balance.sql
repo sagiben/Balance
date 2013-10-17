@@ -25,7 +25,8 @@ CREATE TABLE transactions (
 
 CREATE TABLE "accounts" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "name" TEXT NOT NULL
+    "name" TEXT NOT NULL UNIQUE,
+    "class" TEXT NOT NULL	
 );
 CREATE TABLE categories (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -37,6 +38,12 @@ CREATE TABLE "words_to_category" (
     "cat_id" INTEGER NOT NULL,
     "word" TEXT NOT NULL UNIQUE
 );
+
+CREATE TABLE "excluded_categories" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "cat_id" INTEGER NOT NULL
+);
+
 
 CREATE VIEW "complete" AS SELECT transactions.date, transactions.reference_id, transactions.reference_desc, transactions.current_amount, owners.name AS owner_name, accounts.name AS account_name 
 FROM transactions 

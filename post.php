@@ -1,4 +1,4 @@
-<html>
+<html dir="rtl">
 <head>
      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
@@ -13,9 +13,10 @@ require_once 'HTML/Table.php';
 dbConnect();
 
 $arr = $_POST;
-$numRows = (count($arr)-1)/5;
-
 $cellType = array("date", "desc", "reference", "amount", "cat");
+
+$numRows = (int)((count($arr)-1)/count($cellType));
+
 $insertTransFMT = "INSERT INTO transactions (id, date, reference_id, reference_desc, full_amount, current_amount, owner, account) 
                    VALUES (%d, '%s', %d, '%s', %f, %f, %d, %d);";
 $insertTransToCatFMT = "INSERT INTO trans_to_category (cat_id, trans_id) VALUES (%d, %d);";
@@ -32,15 +33,18 @@ while($row = $excludedTbl->fetchArray(SQLITE3_ASSOC) ){
     array_push($excluded_cats, $row['cat_id']);
 }
 
-echo '<div dir="ltr">', PHP_EOL;
+$excluded_transactions = array();
+
 $insert_sql = "BEGIN;" . PHP_EOL;
 for ($i = 1, $id=$last_id; $i <= $numRows; $i++) {
     $typesWithRow = $cellType;
     foreach ($typesWithRow as &$value)
 	$value = $value . '_' . $i;
-
+    
     if ( in_array($arr[$typesWithRow[4]], $excluded_cats) ) {
-	echo $arr[$typesWithRow[4]]. "is in excluded" . EOL;
+	$excludeMe = sprintf("התעלמתי מפעולה # %d השייכת לקטגוריה %d", $i, $arr[$typesWithRow[4]]);
+	echo $excludeMe . EOL;     
+	array_push($excluded_transactions, $arr[$typesWithRow[4]]);
 	continue;
     }
 
@@ -52,9 +56,11 @@ for ($i = 1, $id=$last_id; $i <= $numRows; $i++) {
     $insert_sql .= $insertTrans . PHP_EOL . $insertTransToCat . PHP_EOL . $insertWordsToCat . PHP_EOL;
 }
 $insert_sql .= 'COMMIT;' . PHP_EOL;
-echo $insert_sql , EOL, PHP_EOL;
-var_dump(dbQuery($insert_sql));
-echo '</div>'
+//echo '<div dir="rtl">', PHP_EOL . $insert_sql , EOL, PHP_EOL , '</div>';
+if (dbQuery($insert_sql))
+    echo ($numRows-count($excluded_transactions)) . " פעולות, התווספו בהצלחה ";
+else
+    echo "ההוספה נכשלה";
 
 /*
 $attrs = array('width' => '600');
@@ -64,7 +70,7 @@ $hrAttrs = array('bgcolor' => 'gray');
 $table->setRowAttributes(0, $hrAttrs, true);
 $table->setColAttributes(0, $hrAttrs);
 
-$table->setHeaderContents(0, 0, "#");
+$table->setHeaderContents(0, 0, "");
 $table->setHeaderContents(0, 1, 'תאריך');
 $table->setHeaderContents(0, 2, 'תיאור');
 $table->setHeaderContents(0, 3, 'אסמכתא');
@@ -84,6 +90,7 @@ $table->altRowAttributes(1, null, $altRow);
 
 echo $table->toHtml();
 */
+
 ?>
 </body>
 </html>

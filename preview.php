@@ -28,9 +28,9 @@ function validateCategories() {
 <body>
 <?php
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', TRUE);
-//ini_set('display_startup_errors', TRUE);
+  //error_reporting(E_ALL);
+  //ini_set('display_errors', TRUE);
+  //ini_set('display_startup_errors', TRUE);
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : ' <br />');
 date_default_timezone_set('Asia/Jerusalem');
 
@@ -55,7 +55,7 @@ while($row = $wordsTbl->fetchArray(SQLITE3_ASSOC) ){
   $words_to_cat[$row['word']]=$row['cat_id'];
 }
 
-$accountsTbl = dbSelect('class', 'accounts', "id='" . $account . "';");
+$accountsTbl = dbSelect('class', 'accounts', "id='" . $account . "'");
 $accountClass = $accountsTbl['class'];
 dbclose();
 
@@ -64,12 +64,12 @@ $myAccount = new $accountClass($categories, $words_to_cat);
 $myAccount->parseExcel($inputFileName);
 $table = $myAccount->getHtmlTable();
 
-echo '<form method="post" id="test" enctype="multipart/form-data" action="post.php" onsubmit="return validateCategories()">';
+echo '<form method="post" id="test" enctype="multipart/form-data" action="post.php" onsubmit="return validateCategories()">', PHP_EOL;
 echo $table;
-echo '<input type="hidden" name="owner" value="', $owner, '"></input>';
-echo '<input type="hidden" name="account" value="', $account, '"></input>';
-echo '<input type="submit" value="שלח" name="submit" id="submit" />';
-echo '</from>';
+echo '<input type="hidden" name="owner" value="', $owner, '" />', PHP_EOL;
+echo '<input type="hidden" name="account" value="', $account, '" />', PHP_EOL;
+echo '<input type="submit" value="שלח" name="submit" id="submit" />', PHP_EOL;
+echo '</from>', PHP_EOL;
 
 ?>
 </body>

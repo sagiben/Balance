@@ -41,11 +41,17 @@ CREATE TABLE "words_to_category" (
 
 CREATE TABLE "excluded_categories" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "cat_id" INTEGER NOT NULL
+    "cat_id" INTEGER NOT NULL,
+    "action" INTEGER NOT NULL
+);
+
+CREATE TABLE "excluded_actions" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "action" TEXT NOT NULL
 );
 
 
-CREATE VIEW "complete" AS SELECT transactions.date, transactions.reference_id, transactions.reference_desc, transactions.current_amount, owners.name AS owner_name, accounts.name AS account_name 
+CREATE VIEW "complete" AS SELECT transactions.id, transactions.date, transactions.reference_id, transactions.reference_desc, transactions.current_amount, owners.name AS owner_name, accounts.name AS account_name 
 FROM transactions 
 JOIN owners ON owners.id = transactions.owner 
 JOIN accounts ON accounts.id = transactions.account;

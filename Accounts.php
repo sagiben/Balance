@@ -133,7 +133,7 @@ class VisaLeumi extends Account {
 	    $this->m_table->setCellContents($rowCounter, $col++, $rowCounter);
 
 	    //Date
-	    $date = '01/09/13'; //$rowData[0][1] should be in dd/mm/yy format
+	    $date = PHPExcel_Style_NumberFormat::toFormattedString($rowData[0][0], 'dd/mm/yy');
 	    $cellContent = sprintf($this->m_cellFMT, 
 				   $this->m_cellType[0], $rowCounter, 
 				   $this->m_cellType[0], $rowCounter, 

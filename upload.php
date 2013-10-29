@@ -1,18 +1,33 @@
 <html lang="he" dir="rtl">
 <head>
-     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Balance :: קובץ חדש</title>
+	<style type="text/css">@import url("css/style1.css");</style>
+	<style type="text/css">@import url("css/nav.css");</style>
+	<style type="text/css">@import url("css/menu.css");</style>
+
+	<script type="text/javascript" src="js/jscalendar/calendar.js"></script>
+	<script type="text/javascript" src="js/jscalendar/lang/calendar-he-utf8.js"></script>
+	<script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
+	<link rel="stylesheet" type="text/css" media="screen" href="js/jscalendar/calendar-blue-mine.css">
 </head>
 <body>
+<?php
+  require_once 'nav_header.php';
+  header_select("קובץ חדש");
+?>
+
+<h1> העלאת קובץ פעולות </h1>
 
 <form action="preview.php" method="post" enctype="multipart/form-data">
 <?php
 date_default_timezone_set('Asia/Jerusalem');
 
 require_once 'HTML/Table.php';
-require_once 'dbconnect.inc';
-dbconnect();
+require_once 'dbWrapper.php';
+$db = dbWrapper::getInstance();
 
-$tblOwners = dbGetTable("owners");
+$tblOwners = $db->getTable("owners");
 $owners[] = "<option value='0'>--?--</option>";
 while($row = $tblOwners->fetchArray(SQLITE3_ASSOC) ){
   $owners[] = "<option value='" . $row['id']. "'>" . $row['name']. "</option>";
@@ -25,7 +40,7 @@ $table->setCellContents(0, 0, 'בעל החשבון');
 $ownerSelect = '<select id="owner" name="owner">' . PHP_EOL . implode(PHP_EOL, $owners) . PHP_EOL . '</select>';
 $table->setCellContents(0, 1, $ownerSelect);
 
-$tblAccounts = dbGetTable("accounts");
+$tblAccounts = $db->getTable("accounts");
 $accounts[] = "<option value='0'>--?--</option>";
 while($row = $tblAccounts->fetchArray(SQLITE3_ASSOC) ){
   $accounts[] = "<option value='" . $row['id']. "'>" . $row['name']. "</option>";

@@ -1,7 +1,17 @@
-<html dir=rtl>
+<html lang="he" dir="rtl">
 <head>
      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-     <script>
+     <title>Balance :: קובץ חדש</title>
+     <style type="text/css">@import url("css/style1.css");</style>
+     <style type="text/css">@import url("css/nav.css");</style>
+     <style type="text/css">@import url("css/menu.css");</style>
+     
+     <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
+     <script type="text/javascript" src="js/jscalendar/lang/calendar-he-utf8.js"></script>
+     <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
+     <link rel="stylesheet" type="text/css" media="screen" href="js/jscalendar/calendar-blue-mine.css">
+     
+<script>
      $(document).ready(function() {
 	     $('form').submit(function(msg) {  
 		     $.post("post.php",$(this).serialize(),function(data){
@@ -27,41 +37,45 @@ function validateCategories() {
 </head>
 <body>
 <?php
+  require_once 'nav_header.php';
+  header_select("קובץ חדש");
+?>
 
-  //error_reporting(E_ALL);
-  //ini_set('display_errors', TRUE);
-  //ini_set('display_startup_errors', TRUE);
+<h1> העלאת קובץ פעולות </h1>
+
+<?php
+
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : ' <br />');
 date_default_timezone_set('Asia/Jerusalem');
 
 require_once 'HTML/Table.php';
-require_once 'dbconnect.inc';
+require_once 'dbWrapper.php';
 require_once 'Accounts.php';
 
 //TODO : input validation
 $owner = $_POST['owner'];
 $account = $_POST['account'];
 
-dbconnect();
+$db = dbWrapper::getInstance();
 $categories[] = "<option value='0'>--?--</option>";
-$catTbl = dbGetTable('categories');
+$catTbl = $db->getTable('categories', "name");
 while($row = $catTbl->fetchArray(SQLITE3_ASSOC) ){
   $categories[] = "<option value='" . $row['id']. "'>" . $row['name']. "</option>";
 }
 
-$wordsTbl = dbGetTable('words_to_category');
+$wordsTbl = $db->getTable('words_to_category');
 $words_to_cat = array();
 while($row = $wordsTbl->fetchArray(SQLITE3_ASSOC) ){
   $words_to_cat[$row['word']]=$row['cat_id'];
 }
 
-$accountsTbl = dbSelect('class', 'accounts', "id='" . $account . "'");
+$accountsTbl = $db->select('class', 'accounts', "id='" . $account . "'");
 $accountClass = $accountsTbl['class'];
-dbclose();
-
 $inputFileName = $_FILES["file"]["tmp_name"];
 $myAccount = new $accountClass($categories, $words_to_cat);
-$myAccount->parseExcel($inputFileName);
+if (!$myAccount->parseExcel($inputFileName))
+    return;
+
 $table = $myAccount->getHtmlTable();
 
 echo '<form method="post" id="test" enctype="multipart/form-data" action="post.php" onsubmit="return validateCategories()">', PHP_EOL;

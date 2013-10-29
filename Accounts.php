@@ -63,6 +63,13 @@ class BankLeumi extends Account {
 	$sheet = $objPHPExcel->getSheet(0); 
 	$highestRow = $sheet->getHighestRow(); 
 	$highestColumn = $sheet->getHighestColumn();
+
+	$cellVal = $sheet->getCell('A2')->getValue();
+	if (false === mb_strpos($cellVal, $this::AccountName)) {
+	    echo "<h2> שגיאה בהעלאת הקובץ </h2>";
+	    return false;
+	}
+
 	$this->initTable();
 	$transactionsTotal = 0;
 	//  Loop through each row of the worksheet in turn
@@ -100,6 +107,7 @@ class BankLeumi extends Account {
 	$this->m_table->setCellContents($row-16, 2, 'סה"כ');
 	$this->m_table->setCellContents($row-16, 4, round($transactionsTotal,2));
 	$this->finishTable();
+	return true;
     }
 }
 
@@ -116,6 +124,14 @@ class VisaLeumi extends Account {
 	$sheet = $objPHPExcel->getSheet(0); 
 	$highestRow = $sheet->getHighestRow(); 
 	$highestColumn = $sheet->getHighestColumn();
+
+	$signatureArr = array ("תאריך עסקה", "תאריך חיוב", "שם בית העסק", "סוג עסקה","מטבע עסקה", "סכום עסקה", "סכום חיוב ₪", "הערות");
+	$validateArr = $sheet->rangeToArray('A1:H1', NULL, TRUE, FALSE);
+	if ($signatureArr != $validateArr[0]) {
+	    echo "<h2> שגיאה בהעלאת הקובץ </h2>";
+	    return false;
+	}
+
 	$this->initTable();
 
 	$total = 0;
@@ -185,6 +201,7 @@ class VisaLeumi extends Account {
 	$this->m_table->setCellContents($rowCounter, 2, 'סה"כ');
 	$this->m_table->setCellContents($rowCounter, 4, round($total,2));
 	$this->finishTable();
+	return true;
     }
 }
 ?>

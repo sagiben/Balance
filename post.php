@@ -8,9 +8,9 @@
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : ' <br />');
 date_default_timezone_set('Asia/Jerusalem');
 
-require_once 'dbconnect.inc';
+require_once 'dbWrapper.php';
 require_once 'HTML/Table.php';
-dbConnect();
+$db = dbWrapper::getInstance();
 
 $arr = $_POST;
 $cellType = array("date", "desc", "reference", "amount", "cat");
@@ -22,12 +22,12 @@ $insertTransFMT = "INSERT INTO transactions (id, date, reference_id, reference_d
 $insertTransToCatFMT = "INSERT INTO trans_to_category (cat_id, trans_id) VALUES (%d, %d);";
 $insertWordsToCatFMT = "INSERT OR IGNORE INTO words_to_category (cat_id, word) VALUES (%d,'%s');";
 
-$last_id_ar=dbSelect("seq", "SQLITE_SEQUENCE", "name='transactions'");
+$last_id_ar=$db->select("seq", "SQLITE_SEQUENCE", "name='transactions'");
 $last_id=0;
 if ($last_id_ar!=NULL)
     $last_id=$last_id_ar['seq'];
 
-$excludedTbl = dbGetTable('excluded_categories');
+$excludedTbl = $db->getTable('excluded_categories');
 $excluded_cats = array();
 while($row = $excludedTbl->fetchArray(SQLITE3_ASSOC) ){
     array_push($excluded_cats, $row['cat_id']);
@@ -57,7 +57,7 @@ for ($i = 1, $id=$last_id; $i <= $numRows; $i++) {
 }
 $insert_sql .= 'COMMIT;' . PHP_EOL;
 //echo '<div dir="rtl">', PHP_EOL . $insert_sql , EOL, PHP_EOL , '</div>';
-if (dbQuery($insert_sql))
+if ($db->query($insert_sql))
     echo ($numRows-count($excluded_transactions)) . " פעולות, התווספו בהצלחה ";
 else
     echo "ההוספה נכשלה";

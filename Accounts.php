@@ -8,6 +8,7 @@ abstract class Account
     protected $m_table;
     protected $m_cellType, $m_cellFMT, $m_catsFMT;
     protected $m_categories, $m_wordsToCat;
+    protected $m_amountAttr, $m_amountAltAttr;
 
     public function __construct (&$categories, &$wordsToCat) {
 	$this->m_categories = $categories;
@@ -17,6 +18,9 @@ abstract class Account
 	$this->m_cellType = array("date", "desc", "reference", "amount", "cat");
 	$this->m_cellFMT = '<input type="hidden" name="%s_%d" id="%s_%d" value="%s" />%s';
 	$this->m_catsFMT = '<select id="%s_%d" name="%s_%d" onchange="this.style.borderColor=\'black\';">" %s </select>';
+
+	$this->m_amountAttr = array('class' => 'pme-cell-0-amount');
+	$this->m_amountAltAttr = array('class' => 'pme-cell-1-amount');
     }
     
     abstract public function parseExcel($inputFileName);
@@ -30,12 +34,18 @@ abstract class Account
     }
 
     protected function initTable() {
-	$attrs = array('width' => '600');
+	$attrs = array('width' => '600', 'class' => 'pme-main');
 	$this->m_table->setAttributes($attrs);
-	$hrAttrs = array('bgcolor' => 'gray');
+	//	$hrAttrs = array('bgcolor' => 'gray');
+	$hrAttrs = array('class' => 'pme-header');
 	$this->m_table->setRowAttributes(0, $hrAttrs, true);
 	$this->m_table->setColAttributes(0, $hrAttrs);
-
+	$this->m_table->setColAttributes(1, $hrAttrs);
+	$this->m_table->setColAttributes(2, $hrAttrs);
+	$this->m_table->setColAttributes(3, $hrAttrs);
+	$this->m_table->setColAttributes(4, $hrAttrs);
+	$this->m_table->setColAttributes(5, $hrAttrs);
+	
 	$this->m_table->setHeaderContents(0, 0, '#');
 	$this->m_table->setHeaderContents(0, 1, 'תאריך');
 	$this->m_table->setHeaderContents(0, 2, 'תיאור');
@@ -44,9 +54,23 @@ abstract class Account
 	$this->m_table->setHeaderContents(0, 5, 'קטגוריה');
     }
 
-    protected function finishTable() {
-	$altRow = array('bgcolor' => 'silver');
-	$this->m_table->altRowAttributes(1, null, $altRow);
+    protected function finishTable($numRows) {
+	//	$altRow = array('bgcolor' => 'silver');
+	$row = array('class'=>'pme-row-0');
+	$cell = array('class' => 'pme-cell-0');
+	$this->m_table->altRowAttributes(0, null, $row, true);
+	$this->m_table->altRowAttributes(0, null, $cell, false);
+	$altRow = array('class'=>'pme-row-1');
+	$altCell = array('class' => 'pme-cell-1');
+	$this->m_table->altRowAttributes(1, null, $altRow, true);
+	$this->m_table->altRowAttributes(1, null, $altCell, false);
+
+	for($i=1; $i<=$numRows+1;$i++) {
+	    if ( $i % 2 == 1 )
+		$this->m_table->setCellAttributes($i, 4, $this->m_amountAttr);
+	    else 
+		$this->m_table->setCellAttributes($i, 4, $this->m_amountAltAttr);
+	}
     }
 }
 
@@ -106,7 +130,7 @@ class BankLeumi extends Account {
 	}
 	$this->m_table->setCellContents($row-16, 2, 'סה"כ');
 	$this->m_table->setCellContents($row-16, 4, round($transactionsTotal,2));
-	$this->finishTable();
+	$this->finishTable($row-17);
 	return true;
     }
 }
@@ -200,7 +224,7 @@ class VisaLeumi extends Account {
 	}
 	$this->m_table->setCellContents($rowCounter, 2, 'סה"כ');
 	$this->m_table->setCellContents($rowCounter, 4, round($total,2));
-	$this->finishTable();
+	$this->finishTable($rowCounter-1);
 	return true;
     }
 }

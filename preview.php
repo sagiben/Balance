@@ -5,12 +5,7 @@
      <style type="text/css">@import url("css/style1.css");</style>
      <style type="text/css">@import url("css/nav.css");</style>
      <style type="text/css">@import url("css/menu.css");</style>
-     
-     <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
-     <script type="text/javascript" src="js/jscalendar/lang/calendar-he-utf8.js"></script>
-     <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
-     <link rel="stylesheet" type="text/css" media="screen" href="js/jscalendar/calendar-blue-mine.css">
-     
+          
 <script>
      $(document).ready(function() {
 	     $('form').submit(function(msg) {  

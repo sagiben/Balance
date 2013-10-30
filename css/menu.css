@@ -1,0 +1,93 @@
+#menu ul {     /* the structure of our head-menu */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid black;
+    font-size: 10px; 
+  /*  float: left;*/
+}
+
+#menu li { /* the structure of the first items */
+    list-style: none;
+    float: left;
+    position: relative;
+    top: 2;
+    left: 1;
+    border: none;
+    white-space: nowrap;
+    padding : 1px 0;
+    background: #f7f7f7 url(../images/topbar_gradient.png) 0 0;
+}
+
+#menu .active > a:link{
+    background: #333 url(../images/topbar_gradient2.png) 0 0 repeat-x;
+    border-top: none;
+    border-right: 1px solid #000;
+    color: #eee;
+    font-weight: bold;
+}
+
+#menu li a:link, #menu li a:visited { /* linkes inside the list items */
+    background: url(../images/dots.gif) 0 0 no-repeat; 
+    color: black;
+    text-decoration: none;
+    border: none;
+    border-right: 1px solid black;
+    padding: 2px 10px;
+    font: normal 10px verdana,'Bitstream Vera Sans',helvetica,arial,sans-serif;
+}
+
+
+#menu li a:hover { /* hover on the linkes inside the list items */
+    background-color: #ccc;
+    border-right: 1px solid black;
+    text-decoration: underline;
+}
+
+
+
+
+
+
+/* Drop Down menu properties */
+
+
+#menu li ul li{ /* the structure of our submenu items */
+    float: right;
+    padding: 0px;
+    z-index: 500;
+    width: 100%;
+}
+
+
+#menu ul li a:link, #menu ul li a:visited { /* the links inside our first items */
+    display: block;
+    padding: 2px 10px; 
+    border: 1px solid black;
+    border-bottom: none;
+    font: bold 11px verdana,'Bitstream Vera Sans',helvetica,arial,sans-serif;
+}
+
+#menu ul li:last-child {
+    border-bottom: 1px solid black;
+}
+
+#menu ul li a:hover { /* the roll-over styles for the links in our first items */
+}
+
+#menu li ul { /* first items > submenu structure */
+    display: none;
+    position: absolute;
+    top: 16;
+    left: -2;
+    white-space: nowrap;
+    padding: 1px;
+    border: none;
+}
+
+#menu ul li :hover  {
+}
+
+#menu li:hover ul, li.over ul { /* to make things work in Internet Explorer (call for the behavior file) */
+    display: block;
+}

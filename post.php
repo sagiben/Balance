@@ -1,8 +1,19 @@
-<html dir="rtl">
+<html lang="he" dir="rtl">
 <head>
      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+     <title>Balance :: קובץ חדש</title>
+     <style type="text/css">@import url("css/style1.css");</style>
+     <style type="text/css">@import url("css/nav.css");</style>
+     <style type="text/css">@import url("css/menu.css");</style>
 </head>
 <body>
+<?php
+  require_once 'nav_header.php';
+  header_select("קובץ חדש");
+?>
+
+<h1> העלאת קובץ פעולות </h1>
+
 <?php
 
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : ' <br />');
@@ -45,6 +56,8 @@ for ($i = 1, $id=$last_id; $i <= $numRows; $i++) {
 	$excludeMe = sprintf("התעלמתי מפעולה # %d השייכת לקטגוריה %d", $i, $arr[$typesWithRow[4]]);
 	echo $excludeMe . EOL;     
 	array_push($excluded_transactions, $arr[$typesWithRow[4]]);
+	$insertWordsToCat = sprintf($insertWordsToCatFMT, $arr[$typesWithRow[4]], $arr[$typesWithRow[1]]);
+	$insert_sql .= $insertWordsToCat . PHP_EOL;
 	continue;
     }
 

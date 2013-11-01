@@ -228,4 +228,217 @@ class VisaLeumi extends Account {
 	return true;
     }
 }
+
+
+class IsraCard extends Account {
+
+    const AccountName = 'ישראכרט';
+
+    public function parseExcel($inputFileName) {
+	$objReader = PHPExcel_IOFactory::createReader('HTML');
+	$objReader->setReadDataOnly(true);
+	$objPHPExcel = $objReader->load($inputFileName);
+	$sheet = $objPHPExcel->getSheet(0); 
+	$highestRow = $sheet->getHighestRow(); 
+	$highestColumn = $sheet->getHighestColumn();
+
+	$signatureArr = array ("תאריך רכישה", "שם בית עסק", "סכום עסקה", "סכום לחיוב", "מספר שובר", "פרוט נוסף");
+	$validateArr = $sheet->rangeToArray('A4:F4', NULL, TRUE, FALSE);
+	if ($signatureArr !== $validateArr[0]) {
+	    echo "<h2> שגיאה בהעלאת הקובץ </h2>";
+	    return false;
+	}
+
+	$this->initTable();
+
+	$totalRow = $highestRow-1;
+	$rowData = $sheet->rangeToArray('C' . $totalRow . ':' . 'D' . $totalRow, NULL, TRUE, FALSE);
+	$expectedTotal = $rowData[0][1];
+	$interval = new DateInterval('P1M1D');
+	$chargeDate = DateTime::createFromFormat('d/m/y', $rowData[0][0])->sub($interval);
+	
+	$total = 0;
+	$rowCounter = 1;
+	//  Loop through each row of the worksheet in turn
+	for ($row = 6; $row <= $highestRow-2; $row++){ 
+	    //  Read a row of data into an array
+	    $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+	    $col = 0;
+	    if ($rowData[0][3] == '0') {
+		continue;
+	    }
+
+	    // Number
+	    $this->m_table->setCellContents($rowCounter, $col++, $rowCounter);
+
+	    //Date
+	    $date = DateTime::createFromFormat('d/m/Y', $rowData[0][0]);
+	    if ( $date < $chargeDate )
+		$dateStr = $chargeDate->format('d/m/y');
+	    else
+		$dateStr = $date->format('d/m/y');
+	    $cellContent = sprintf($this->m_cellFMT, 
+				   $this->m_cellType[0], $rowCounter, 
+				   $this->m_cellType[0], $rowCounter, 
+				   htmlspecialchars($dateStr), $dateStr);
+	    $this->m_table->setCellContents($rowCounter, $col++, $cellContent);
+
+	    //Desc
+	    $strDesc = str_replace('\'', '', str_replace('"', '', $rowData[0][1]));
+	    $cellContent = sprintf($this->m_cellFMT, 
+				   $this->m_cellType[1], $rowCounter, 
+				   $this->m_cellType[1], $rowCounter, 
+				   htmlspecialchars($strDesc), $strDesc);
+	    $this->m_table->setCellContents($rowCounter, $col++, $cellContent);
+
+	    //Reference
+	    $cellContent = sprintf($this->m_cellFMT, 
+				   $this->m_cellType[2], $rowCounter, 
+				   $this->m_cellType[2], $rowCounter, 
+				   htmlspecialchars($strDesc), $rowData[0][4]);
+	    $this->m_table->setCellContents($rowCounter, $col++, $cellContent);
+	    
+	    //Amount
+	    $amount = -$rowData[0][3];
+	    $total += $amount;
+	    $cellContent = sprintf($this->m_cellFMT, 
+				   $this->m_cellType[3], $rowCounter, 
+				   $this->m_cellType[3], $rowCounter, 
+				   htmlspecialchars(round($amount, 2)), round($amount, 2));
+	    $this->m_table->setCellContents($rowCounter, $col++, $cellContent);
+	    
+	    //Category
+	    if ( array_key_exists($rowData[0][1], $this->m_wordsToCat) ) {
+		$cat_name=$rowData[0][1];
+		$cat_index=$this->m_wordsToCat[$cat_name];
+		$to_replace="value='" . $cat_index ."'";
+		$tmp_categories = str_replace($to_replace, $to_replace . " selected", $this->m_categories);
+		$cats = sprintf($this->m_catsFMT, 
+				$this->m_cellType[4], $rowCounter, 
+				$this->m_cellType[4], $rowCounter, implode(' ', $tmp_categories));
+	    }
+	    else 
+		$cats = sprintf($this->m_catsFMT, 
+				$this->m_cellType[4], $rowCounter,
+				$this->m_cellType[4], $rowCounter,
+				implode(' ', $this->m_categories));
+	    $this->m_table->setCellContents($rowCounter, $col, $cats);
+
+	    $rowCounter++;
+	}
+	$this->m_table->setCellContents($rowCounter, 2, 'סה"כ');
+	$this->m_table->setCellContents($rowCounter, 4, round($total,2));
+	$this->finishTable($rowCounter-1);
+	return true;
+    }
+}
+
+
+
+class VisaCAL extends Account {
+
+    const AccountName = 'ויזה כאל';
+
+    public function parseExcel($inputFileName) {
+	$objReader = PHPExcel_IOFactory::createReader('HTML');
+	$objReader->setReadDataOnly(true);
+	$objPHPExcel = $objReader->load($inputFileName);
+	$sheet = $objPHPExcel->getSheet(0); 
+	$highestRow = $sheet->getHighestRow(); 
+	$highestColumn = $sheet->getHighestColumn();
+
+	$signatureArr = array ('תאריך העסקה', 'שם בית העסק', 'סכום העסקה', '', 'סכום החיוב', '', 'פירוט נוסף');
+	$validateArr = $sheet->rangeToArray('A6:G6', NULL, TRUE, FALSE);
+	$validateArr = str_replace(PHP_EOL, ' ', $validateArr[0]);
+	if ($signatureArr !== $validateArr) {
+	    echo "<h2> שגיאה בהעלאת הקובץ </h2>";
+	    return false;
+	}
+
+	$this->initTable();
+	/*
+	$totalRow = $highestRow-1;
+	$rowData = $sheet->rangeToArray('C' . $totalRow . ':' . 'D' . $totalRow, NULL, TRUE, FALSE);
+	$expectedTotal = $rowData[0][1];
+	$interval = new DateInterval('P1M1D');
+	$chargeDate = DateTime::createFromFormat('d/m/y', $rowData[0][0])->sub($interval);
+	*/
+	
+	$total = 0;
+	$rowCounter = 1;
+	//  Loop through each row of the worksheet in turn
+	for ($row = 7; $row <= $highestRow-1; $row++){ 
+	    //  Read a row of data into an array
+	    $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+	    $col = 0;
+	    if ($rowData[0][3] == '0') {
+		continue;
+	    }
+
+	    // Number
+	    $this->m_table->setCellContents($rowCounter, $col++, $rowCounter);
+
+	    //Date
+	    $date = DateTime::createFromFormat('d/m/y', $rowData[0][0]);
+	    //if ( $date < $chargeDate )
+	    //$dateStr = $chargeDate->format('d/m/y');
+	    //else
+		$dateStr = $date->format('d/m/y');
+	    $cellContent = sprintf($this->m_cellFMT, 
+				   $this->m_cellType[0], $rowCounter, 
+				   $this->m_cellType[0], $rowCounter, 
+				   htmlspecialchars($dateStr), $dateStr);
+	    $this->m_table->setCellContents($rowCounter, $col++, $cellContent);
+
+	    //Desc
+	    //$strDesc = str_replace('\'', '', str_replace('"', '', $rowData[0][1]));
+	    $cellContent = sprintf($this->m_cellFMT, 
+				   $this->m_cellType[1], $rowCounter, 
+				   $this->m_cellType[1], $rowCounter, 
+				   htmlspecialchars($rowData[0][1]), $rowData[0][1]);
+	    $this->m_table->setCellContents($rowCounter, $col++, $cellContent);
+
+	    //Reference
+	    $cellContent = sprintf($this->m_cellFMT, 
+				   $this->m_cellType[2], $rowCounter, 
+				   $this->m_cellType[2], $rowCounter, 
+				   htmlspecialchars($rowData[0][1]), '');
+	    $this->m_table->setCellContents($rowCounter, $col++, $cellContent);
+	    
+	    //Amount
+	    $amount = -$rowData[0][4];
+	    $total += $amount;
+	    $cellContent = sprintf($this->m_cellFMT, 
+				   $this->m_cellType[3], $rowCounter, 
+				   $this->m_cellType[3], $rowCounter, 
+				   htmlspecialchars(round($amount, 2)), round($amount, 2));
+	    $this->m_table->setCellContents($rowCounter, $col++, $cellContent);
+	    
+	    //Category
+	    if ( array_key_exists($rowData[0][1], $this->m_wordsToCat) ) {
+		$cat_name=$rowData[0][1];
+		$cat_index=$this->m_wordsToCat[$cat_name];
+		$to_replace="value='" . $cat_index ."'";
+		$tmp_categories = str_replace($to_replace, $to_replace . " selected", $this->m_categories);
+		$cats = sprintf($this->m_catsFMT, 
+				$this->m_cellType[4], $rowCounter, 
+				$this->m_cellType[4], $rowCounter, implode(' ', $tmp_categories));
+	    }
+	    else 
+		$cats = sprintf($this->m_catsFMT, 
+				$this->m_cellType[4], $rowCounter,
+				$this->m_cellType[4], $rowCounter,
+				implode(' ', $this->m_categories));
+	    $this->m_table->setCellContents($rowCounter, $col, $cats);
+
+	    $rowCounter++;
+	}
+	$this->m_table->setCellContents($rowCounter, 2, 'סה"כ');
+	$this->m_table->setCellContents($rowCounter, 4, round($total,2));
+	$this->finishTable($rowCounter-1);
+	return true;
+    }
+}
+
+
 ?>

@@ -31,7 +31,13 @@ $numRows = (int)((count($arr)-1)/count($cellType));
 $insertTransFMT = "INSERT INTO transactions (id, date, reference_id, reference_desc, full_amount, current_amount, owner, account) 
                    VALUES (%d, '%s', %d, '%s', %f, %f, %d, %d);";
 $insertTransToCatFMT = "INSERT INTO trans_to_category (cat_id, trans_id) VALUES (%d, %d);";
+/** 
+ * Consider using a flavor of INSERT OR REPLACE as follows :
+ * INSERT OR REPLACE INTO Employee (id, role, name) 
+ * VALUES (  1, 'code monkey', (SELECT name FROM Employee WHERE id = 1));
+ */
 $insertWordsToCatFMT = "INSERT OR IGNORE INTO words_to_category (cat_id, word) VALUES (%d,'%s');";
+
 
 $last_id_ar=$db->select("seq", "SQLITE_SEQUENCE", "name='transactions'");
 $last_id=0;
@@ -69,11 +75,11 @@ for ($i = 1, $id=$last_id; $i <= $numRows; $i++) {
     $insert_sql .= $insertTrans . PHP_EOL . $insertTransToCat . PHP_EOL . $insertWordsToCat . PHP_EOL;
 }
 $insert_sql .= 'COMMIT;' . PHP_EOL;
-//echo '<div dir="rtl">', PHP_EOL . $insert_sql , EOL, PHP_EOL , '</div>';
+//echo '<div dir="ltr">', PHP_EOL . $insert_sql , EOL, PHP_EOL, '</div>';
 if ($db->query($insert_sql))
     echo ($numRows-count($excluded_transactions)) . " פעולות, התווספו בהצלחה ";
 else
-    echo "ההוספה נכשלה";
+    echo EOL . "ההוספה נכשלה" . EOL;
 
 /*
 $attrs = array('width' => '600');
